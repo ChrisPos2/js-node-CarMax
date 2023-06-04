@@ -190,7 +190,9 @@ app.post('/add_transaction', authenticateToken, (req, res) => {
   const { username, id_auta, status, cena } = req.body;
   const userId_user = req.user.id_user; // Pobieramy id_user z payloadu tokenu
   // Wykonaj logikę dodawania karty do bazy danych
-
+  db.run('DELETE FROM Auto WHERE id_auta = ?', [id_auta], (err) => {
+    });
+  
 
   db.run('INSERT INTO Transakcje (id_user,id_auta,status,cena,data_transakcji,data_odbioru,id_leasingu,id_ubezpieczenia) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId_user,id_auta,status,cena,'2020-01-01','2020-01-02',11,11], (err) => {
     if (err) {
