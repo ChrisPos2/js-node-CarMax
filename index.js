@@ -1,11 +1,11 @@
-const express = require('express'); // to jest zeby postawic serwer http
-const axios = require('axios'); // to jest zeby polaczyc sie do zewnetrzego api w naszym przypadku CEPIK
-const sqlite3 = require('sqlite3'); // to jest do bazy danych w naszym przypadku SQLite
-const bcrypt = require('bcrypt'); // to do hashowania haseł
+const express = require('express'); //serwer http
+const axios = require('axios'); // polaczenie sie do zewnetrzego api w naszym przypadku CEPIK
+const sqlite3 = require('sqlite3'); // baza danych, w naszym przypadku SQLite
+const bcrypt = require('bcrypt'); // do hashowania haseł
 const path = require('path');
-const cors = require('cors'); // zeby frontend i backend moglo byc z innej domeny ?
+const cors = require('cors'); 
 const jwt = require('jsonwebtoken');
-const PasswordValidator = require('password-validator');
+const PasswordValidator = require('password-validator'); // walidacja hasła
 
 
 // Tworzenie nowego schematu walidacji hasła
@@ -463,25 +463,23 @@ app.get('/Oceny', authenticateToken, (req, res) => {
 
 
 //Endpoint oceniający transakcję
-app.post('/transactions/:id_user,id_auta/ocena', authenticateToken, (req, res) => {
-  const { id_user } = req.params;
-  const { id_auta } = req.params;
-  const { ocena } = req.body;
+app.post('/Oceny/ocena', authenticateToken, (req, res) => {
+  const { id_transakcja, ocena } = req.body;
 
-  if (!ocena) {
-    return res.status(400).json({ error: 'Ocena jest wymagana' });
+  if (!id_transakcja || !ocena) {
+    return res.status(400).json({ error: 'ID transakcji i ocena są wymagane' });
   }
 
-  db.run('UPDATE Transakcje SET ocena = ? WHERE id = ?', [ocena, id_user, id_auta], function (
-    err
-  ) {
+  db.run('INSERT INTO Oceny (id_transakcja, ocena) VALUES (?, ?)', [id_transakcja, ocena], function (err) {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Wystąpił błąd serwera' });
-    } else if (this.changes === 0) {
-      res.status(404).json({ error: 'Nie znaleziono transakcji o podanym ID' });
     } else {
-      res.json({ message: 'Transakcja oceniona pomyślnie' });
+      if (this.changes === 0) {
+        res.status(404).json({ error: 'Nie znaleziono transakcji o podanym ID' });
+      } else {
+        res.json({ message: 'Transakcja oceniona pomyślnie' });
+      }
     }
   });
 });

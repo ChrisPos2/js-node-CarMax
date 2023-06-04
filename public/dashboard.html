@@ -4,6 +4,7 @@
   <title>Oferty</title>
   <meta charset="UTF-8">
   <style>
+    
     body {
       display: flex;
       flex-direction: column;
@@ -46,6 +47,8 @@
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
+      margin-top: 16px;
+      margin-bottom: 16px;
     }
 
     button:hover {
@@ -129,8 +132,10 @@
   </style>
 </head>
 <body>
-  
+  <button id="logout-button">Wyloguj</button> <!-- Przycisk wylogowania -->
+  <div id="container2"></div>
   <div id="container"></div>
+  
   <h1>Oferty dla </h1>
   <table id="cars-table">
     <thead>
@@ -151,8 +156,10 @@
     <tbody></tbody>
   </table>
 
+  
 
   <h1>Transakcje</h1>
+  <button onclick="sortTransactionsByPrice()">Sortuj transakcje po cenie</button>
   <table id="transactions-table">
     <thead>
       <tr>
@@ -169,7 +176,7 @@
     <tbody></tbody>
 
 
-  <button id="logout-button">Wyloguj</button> <!-- Przycisk wylogowania -->
+  
 
 
   
@@ -227,7 +234,7 @@ button.addEventListener('click', () => {
 });
 
 // Dodawanie przycisku do kontenera na stronie
-const container = document.getElementById('container'); // Przykładowy identyfikator kontenera
+const container = document.getElementById('container2'); // Przykładowy identyfikator kontenera
 container.appendChild(button);
 }
 
@@ -498,6 +505,39 @@ function createTable(data) {
   table.appendChild(tbody);
   document.body.appendChild(table);
 }
+
+let isSortedAsc = false; // Global variable to track the sort order
+
+function sortTransactionsByPrice() {
+    const table = document.getElementById('transactions-table');
+    const rows = Array.from(table.rows);
+    const header = rows.shift(); // Remove the header row
+
+    rows.sort((rowA, rowB) => {
+        const priceA = parseFloat(rowA.cells[3].innerText);
+        const priceB = parseFloat(rowB.cells[3].innerText);
+
+        if (isSortedAsc) {
+            return priceB - priceA; // For descending order
+        } else {
+            return priceA - priceB; // For ascending order
+        }
+    });
+
+    // Clear the table and re-add the sorted rows
+    while (table.firstChild) {
+        table.firstChild.remove();
+    }
+
+    table.appendChild(header);
+    for (const row of rows) {
+        table.appendChild(row);
+    }
+
+    isSortedAsc = !isSortedAsc; // Toggle the sort order for the next time
+}
+
+
 
 fetchDataFromCepik();
 
