@@ -483,7 +483,6 @@ app.post('/Oceny/ocena', authenticateToken, (req, res) => {
     }
   });
 });
-//cos tam
 
 
 app.get('/preferred_cars_offers', authenticateToken, (req, res) => {
