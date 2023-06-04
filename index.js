@@ -50,13 +50,13 @@ const secret = 'tajny_klucz'; // Dodajemy tajny klucz używany do podpisywania i
 
 // Tworzenie tabeli Users
 db.serialize(() => {
-  db.run('CREATE TABLE IF NOT EXISTS Users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, id_karty INTEGER, username TEXT, password TEXT, imie TEXT, nazwisko TEXT, email TEXT, numer_telefonu TEXT, FOREIGN KEY(id_karty) REFERENCES Karty(id_karty))');
+  db.run('CREATE TABLE IF NOT EXISTS Users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, id_karty INTEGER, username TEXT, password TEXT, imie TEXT, nazwisko TEXT, email TEXT, numer_telefonu TEXT)'); //, FOREIGN KEY(id_karty) REFERENCES Karty(id_karty)
   db.run(`CREATE TABLE IF NOT EXISTS Auto (id_auta INTEGER PRIMARY KEY AUTOINCREMENT,marka TEXT,model TEXT,typ_nadwozia TEXT,rok_produkcji INTEGER,przebieg INTEGER,pojemnosc REAL,moc INTEGER,rodzaj_paliwa TEXT,cena REAL)`);
   db.run(`CREATE TABLE IF NOT EXISTS Karty (id_karty INTEGER PRIMARY KEY AUTOINCREMENT, numer_karty TEXT, kod_cvv TEXT, data_waznosci TEXT)`);
-  db.run(`CREATE TABLE IF NOT EXISTS Transakcje (id_transakcji INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER,id_auta INTEGER, status TEXT, cena REAL, data_transakcji TEXT,data_odbioru TEXT,id_leasingu INTEGER,id_ubezpieczenia INTEGER, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta))`);
-  db.run('CREATE TABLE IF NOT EXISTS Ulubione(id_ulubione INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta))');
-  db.run('CREATE TABLE IF NOT EXISTS Oceny(id_ocena INTEGER PRIMARY KEY AUTOINCREMENT, id_transakcja INTEGER, ocena INTEGER, komentarz TEXT, FOREIGN KEY(id_transakcja) REFERENCES Transakcje(id_transakcji))');
-  db.run('CREATE TABLE IF NOT EXISTS jazda_testowa(id_jazdy INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER, data TEXT, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta))');
+  db.run(`CREATE TABLE IF NOT EXISTS Transakcje (id_transakcji INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER,id_auta INTEGER, status TEXT, cena REAL, data_transakcji TEXT,data_odbioru TEXT,id_leasingu INTEGER,id_ubezpieczenia INTEGER)`); //, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta)
+  db.run('CREATE TABLE IF NOT EXISTS Ulubione(id_ulubione INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER)'); //, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta)
+  db.run('CREATE TABLE IF NOT EXISTS Oceny(id_ocena INTEGER PRIMARY KEY AUTOINCREMENT, id_transakcja INTEGER, ocena INTEGER, komentarz TEXT)'); //, FOREIGN KEY(id_transakcja) REFERENCES Transakcje(id_transakcji)
+  db.run('CREATE TABLE IF NOT EXISTS jazda_testowa(id_jazdy INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER, data TEXT)'); //, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta)
   // Dodawanie przykładowych rekordów do tabeli transakcje (jeśli tabela jest pusta)
   db.get('SELECT COUNT(*) as count FROM Transakcje', (err, result) => {
     if (err) {
