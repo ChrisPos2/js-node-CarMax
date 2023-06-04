@@ -50,13 +50,13 @@ const secret = 'tajny_klucz'; // Dodajemy tajny klucz używany do podpisywania i
 
 // Tworzenie tabeli Users
 db.serialize(() => {
-  db.run('CREATE TABLE IF NOT EXISTS Users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, id_karty INTEGER, username TEXT, password TEXT, imie TEXT, nazwisko TEXT, email TEXT, numer_telefonu TEXT)');
+  db.run('CREATE TABLE IF NOT EXISTS Users (id_user INTEGER PRIMARY KEY AUTOINCREMENT, id_karty INTEGER, username TEXT, password TEXT, imie TEXT, nazwisko TEXT, email TEXT, numer_telefonu TEXT, FOREIGN KEY(id_karty) REFERENCES Karty(id_karty))');
   db.run(`CREATE TABLE IF NOT EXISTS Auto (id_auta INTEGER PRIMARY KEY AUTOINCREMENT,marka TEXT,model TEXT,typ_nadwozia TEXT,rok_produkcji INTEGER,przebieg INTEGER,pojemnosc REAL,moc INTEGER,rodzaj_paliwa TEXT,cena REAL)`);
   db.run(`CREATE TABLE IF NOT EXISTS Karty (id_karty INTEGER PRIMARY KEY AUTOINCREMENT, numer_karty TEXT, kod_cvv TEXT, data_waznosci TEXT)`);
-  db.run(`CREATE TABLE IF NOT EXISTS Transakcje (id_transakcji INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER,id_auta INTEGER, status TEXT, cena REAL, data_transakcji TEXT,data_odbioru TEXT,id_leasingu INTEGER,id_ubezpieczenia INTEGER)`);
-  db.run('CREATE TABLE IF NOT EXISTS Ulubione(id_ulubione INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER)');
-  db.run('CREATE TABLE IF NOT EXISTS Oceny(id_ocena INTEGER PRIMARY KEY AUTOINCREMENT, id_transakcja INTEGER, ocena INTEGER, komentarz TEXT)');
-  db.run('CREATE TABLE IF NOT EXISTS jazda_testowa(id_jazdy INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER, data TEXT)');
+  db.run(`CREATE TABLE IF NOT EXISTS Transakcje (id_transakcji INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER,id_auta INTEGER, status TEXT, cena REAL, data_transakcji TEXT,data_odbioru TEXT,id_leasingu INTEGER,id_ubezpieczenia INTEGER, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta))`);
+  db.run('CREATE TABLE IF NOT EXISTS Ulubione(id_ulubione INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta))');
+  db.run('CREATE TABLE IF NOT EXISTS Oceny(id_ocena INTEGER PRIMARY KEY AUTOINCREMENT, id_transakcja INTEGER, ocena INTEGER, komentarz TEXT, FOREIGN KEY(id_transakcja) REFERENCES Transakcje(id_transakcji))');
+  db.run('CREATE TABLE IF NOT EXISTS jazda_testowa(id_jazdy INTEGER PRIMARY KEY AUTOINCREMENT, id_user INTEGER, id_auta INTEGER, data TEXT, FOREIGN KEY(id_user) REFERENCES Users(id_user), FOREIGN KEY(id_auta) REFERENCES Auto(id_auta))');
   // Dodawanie przykładowych rekordów do tabeli transakcje (jeśli tabela jest pusta)
   db.get('SELECT COUNT(*) as count FROM Transakcje', (err, result) => {
     if (err) {
@@ -190,7 +190,9 @@ app.post('/add_transaction', authenticateToken, (req, res) => {
   const { username, id_auta, status, cena } = req.body;
   const userId_user = req.user.id_user; // Pobieramy id_user z payloadu tokenu
   // Wykonaj logikę dodawania karty do bazy danych
-
+  db.run('DELETE FROM Auto WHERE id_auta = ?', [id_auta], (err) => {
+    });
+  
 
   db.run('INSERT INTO Transakcje (id_user,id_auta,status,cena,data_transakcji,data_odbioru,id_leasingu,id_ubezpieczenia) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId_user,id_auta,status,cena,'2020-01-01','2020-01-02',11,11], (err) => {
     if (err) {
@@ -387,7 +389,8 @@ app.get('/users', authenticateToken, (req, res) => {
 
 
 app.get('/transactions', authenticateToken, (req, res) => {
-  db.all('SELECT * FROM Transakcje', (err, rows) => {
+  const userId_user = req.user.id_user;
+  db.all('SELECT * FROM Transakcje WHERE id_user = ?', [userId_user], (err, rows) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Wystąpił błąd serwera' });
@@ -396,6 +399,7 @@ app.get('/transactions', authenticateToken, (req, res) => {
     }
   });
 });
+
 
 // Endpoint umawiania jazdy testowej
 app.post('/umow_jazde_testowa', authenticateToken, (req, res) => {
