@@ -389,6 +389,7 @@ function AddTransaction(car){
         alert('Transakcja została dodana.');
         // Możesz wyświetlić komunikat o sukcesie lub zaktualizować tabelę z kartami
        fetchTransactionsData();// Pobierz ponownie dane kart po dodaniu
+       fetchCarsData()
       })
       .catch(function(error) {
         console.error(error);
