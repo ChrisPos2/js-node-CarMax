@@ -389,7 +389,8 @@ app.get('/users', authenticateToken, (req, res) => {
 
 
 app.get('/transactions', authenticateToken, (req, res) => {
-  db.all('SELECT * FROM Transakcje', (err, rows) => {
+  const userId_user = req.user.id_user;
+  db.all('SELECT * FROM Transakcje WHERE id_user = ?', [userId_user], (err, rows) => {
     if (err) {
       console.error(err);
       res.status(500).json({ error: 'Wystąpił błąd serwera' });
@@ -398,6 +399,7 @@ app.get('/transactions', authenticateToken, (req, res) => {
     }
   });
 });
+
 
 // Endpoint umawiania jazdy testowej
 app.post('/umow_jazde_testowa', authenticateToken, (req, res) => {
